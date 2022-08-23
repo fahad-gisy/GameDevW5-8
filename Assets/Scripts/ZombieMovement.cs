@@ -13,7 +13,7 @@ public class ZombieMovement : MonoBehaviour
     [SerializeField] private float MoveSpeed = 5f;
 
     //our rigidbody for movement
-    private CharacterController charController;
+    public CharacterController charController;
 
 
     void Start()
@@ -25,14 +25,16 @@ public class ZombieMovement : MonoBehaviour
     void Update()
     {
         //if we're not moving, then exit the update
-        if (!IsMoving)
+        if (!IsMoving)//false
         {
+            Debug.Log("Away");
             //exit the Update
             return;
         }
 
+        Debug.Log("Close");
         //move the zombie forward in the z axis only
-        charController.SimpleMove(transform.TransformDirection(Vector3.forward) * MoveSpeed * Time.deltaTime);
+        charController.Move(transform.TransformDirection(Vector3.forward) * MoveSpeed * Time.deltaTime);
 
     }
 }

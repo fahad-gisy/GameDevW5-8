@@ -17,6 +17,7 @@ public class ZombieAi : MonoBehaviour
     [SerializeField] private float playerStartChaseDistance = 10f;
     [SerializeField] private float playerStopChaseDistance = 15f;
     
+    
     [Header("Attack Settings")]
     [SerializeField] private float startAttackDistance = 3f;
     [SerializeField] private float stopAttackDistance = 5f;
@@ -36,13 +37,13 @@ public class ZombieAi : MonoBehaviour
         Death,
     }
 
-    private ZombieMovement ZombieMovement;
+   [SerializeField] private ZombieMovement ZombieMovement;
     private ZombieState zombieState = ZombieState.Wait; //normal state
     private bool isWaiting = false;
-    private Coroutine waitingCoroutine;
+    private Coroutine _waitingCoroutine;
     //
     private bool isWandering = false;
-    private Coroutine wanderingCoroutine;
+    private Coroutine _wanderingCoroutine;
     //
     private Transform playerTransfomr;
     private bool isChasing = false;
@@ -60,18 +61,18 @@ public class ZombieAi : MonoBehaviour
         switch (zombieState)
         {
             case ZombieState.Wait:
+                ZombieWait();
                 if (ChasePlayer())
                 {
                     InitChase();
                 }
-                ZombieWait();
                 break;
             case ZombieState.Wander:
+                ZombieWander();
                 if (ChasePlayer())
                 {
                     InitChase();
                 }
-                ZombieWander();
                 break;
             case ZombieState.Chase:
                 if (PlayerDistance <= startAttackDistance)
@@ -141,8 +142,8 @@ public class ZombieAi : MonoBehaviour
 
     private void InitChase()
     {
-        StopCoroutine(wanderingCoroutine);
-        StopCoroutine(waitingCoroutine);
+        StopCoroutine(WalkTime());
+        StopCoroutine(GoWandering());
         isWaiting = false;
         isWandering = false;
         ZombieMovement.IsMoving = true;
@@ -153,11 +154,11 @@ public class ZombieAi : MonoBehaviour
     {
         if (!isWaiting)
         {// if waiting > false go wandering > between max and min Time
-            waitingCoroutine = StartCoroutine((string)GoWandering()); 
+            _waitingCoroutine = StartCoroutine(GoWandering());
         }
     }
 
-     IEnumerable GoWandering()
+    IEnumerator GoWandering()
     {
         isWaiting = true; 
         yield return new WaitForSeconds(Random.Range(minWaitTime, maxWaitTime));
@@ -169,16 +170,17 @@ public class ZombieAi : MonoBehaviour
      {
          if (!isWandering)
          {
+             Debug.Log("TryingWandering");
              isWandering = true;
              transform.Rotate(0f,Random.Range(minRotationDistance,maxRotationDistance),0f);//wandring by rotating the zombie in Y Axis
-             waitingCoroutine = StartCoroutine((string)WalkTime());
+             _waitingCoroutine = StartCoroutine(WalkTime());
          }
      }
 
-     IEnumerable WalkTime()
+     IEnumerator WalkTime()
      {
          ZombieMovement.IsMoving = true;
-         yield return new WaitForSeconds(Random.Range(minRotationDistance,maxRotationDistance));
+         yield return new WaitForSeconds(Random.Range(minWanderTime,maxWanderTime));
          ZombieMovement.IsMoving = false;
          isWaiting = false;
          zombieState = ZombieState.Wait;
@@ -204,7 +206,7 @@ public class ZombieAi : MonoBehaviour
         {
             //attack code
             Debug.Log("Attacked the player");
-            StartCoroutine((string)AttackCoolDown());
+            StartCoroutine(AttackCoolDown());
         }
         else
         {
@@ -215,7 +217,7 @@ public class ZombieAi : MonoBehaviour
         }
     }
 
-    IEnumerable AttackCoolDown()
+    IEnumerator AttackCoolDown()
     {
         canAttack = false;
         yield return new WaitForSeconds(attackCoolDown);
