@@ -1,6 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class ZombieAi : MonoBehaviour
 {    [Header("Waiting Settings")] // waiting time by second > random between 2.5,4.0
@@ -27,7 +29,7 @@ public class ZombieAi : MonoBehaviour
     [SerializeField] private float attackCoolDown = 1.5f;
 
     [Header("Zombie's Health Settings")] 
-    [SerializeField] private float zombieHealth = 100;
+    [SerializeField] private float zombieHealth = 10;
     
     
     
@@ -202,7 +204,7 @@ public class ZombieAi : MonoBehaviour
          yield return new WaitForSeconds(Random.Range(minWanderTime,maxWanderTime));
          // ZombieMovement.IsMoving = false;
          Debug.Log("STOP AND WAIT");
-         // ZombieMovement.SetDest(transform.position);
+         ZombieMovement.SetDest(PlayerPosition);
          isWaiting = false;
          zombieState = ZombieState.Wait;
          isWandering = false;
@@ -242,11 +244,12 @@ public class ZombieAi : MonoBehaviour
 
     IEnumerator AttackCoolDown()
     {
+        
         canAttack = false;
         yield return new WaitForSeconds(attackCoolDown);
         canAttack = true;
     }
-
+    
     private void ZombieDeath()
     {
         Destroy(gameObject);

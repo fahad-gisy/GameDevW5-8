@@ -16,7 +16,7 @@ public class ZombieMovement : MonoBehaviour
     //our rigidbody for movement
     public CharacterController charController;
     public NavMeshAgent _agent;
-    public bool hasArrived = false;
+    // public bool hasArrived = false;
     void Start()
     {
         charController = GetComponent<CharacterController>();
